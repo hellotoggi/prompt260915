@@ -1,0 +1,830 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>프롬프트 활동지</title>
+  <style>
+    :root {
+      --ink: #24304a;
+      --muted: #64748b;
+      --paper: #fffdf7;
+      --line: #dbe4ee;
+      --purple: #7557d8;
+      --purple-soft: #eee9ff;
+      --orange: #f28c28;
+      --orange-soft: #fff0d9;
+      --green: #198b69;
+      --green-soft: #e5f7f0;
+      --blue: #2676d9;
+      --blue-soft: #e8f2ff;
+      --shadow: 0 12px 32px rgba(37, 49, 83, .10);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 4%, #fff0c9 0 8%, transparent 9%),
+        radial-gradient(circle at 92% 12%, #e8ddff 0 8%, transparent 9%),
+        #f6f8fc;
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif;
+      line-height: 1.7;
+      font-size: 18px;
+    }
+    button, textarea { font: inherit; }
+    button { -webkit-tap-highlight-color: transparent; }
+    button:focus-visible, textarea:focus-visible {
+      outline: 4px solid rgba(38, 118, 217, .28);
+      outline-offset: 2px;
+    }
+
+    .wrap { width: min(1080px, calc(100% - 28px)); margin: 0 auto; }
+    header { padding: 34px 0 18px; text-align: center; }
+    .eyebrow {
+      display: inline-flex; gap: 7px; align-items: center;
+      padding: 7px 13px; border-radius: 999px;
+      color: #6247be; background: var(--purple-soft); font-weight: 800; font-size: .9rem;
+    }
+    h1 { margin: 13px 0 6px; font-size: clamp(2rem, 6vw, 3.45rem); line-height: 1.15; letter-spacing: -.04em; }
+    .lead { max-width: 720px; margin: 0 auto; color: var(--muted); font-size: clamp(1rem, 2.5vw, 1.16rem); }
+    .typing-free { color: var(--green); font-weight: 900; }
+
+    .progress {
+      position: sticky; top: 0; z-index: 20;
+      background: rgba(246,248,252,.92); backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(219,228,238,.9); padding: 10px 0;
+    }
+    .progress-inner { display: flex; align-items: center; gap: 10px; }
+    .progress-track { flex: 1; height: 12px; overflow: hidden; background: #e6ebf2; border-radius: 99px; }
+    .progress-bar { width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--purple), var(--orange)); transition: width .3s ease; }
+    .progress-text { min-width: 72px; font-weight: 900; color: #6247be; text-align: right; }
+
+    main { padding: 22px 0 70px; }
+    .card {
+      background: rgba(255,255,255,.96); border: 1px solid var(--line); border-radius: 26px;
+      box-shadow: var(--shadow); padding: clamp(20px, 4vw, 34px); margin: 20px 0;
+    }
+    .step-title { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 6px; }
+    .step-number {
+      flex: 0 0 auto; display: grid; place-items: center; width: 42px; height: 42px;
+      border-radius: 14px; background: var(--orange-soft); color: #c56308; font-weight: 1000;
+    }
+    h2 { margin: 1px 0 0; font-size: clamp(1.35rem, 4vw, 1.8rem); line-height: 1.3; }
+    .guide { margin: 6px 0 20px 54px; color: var(--muted); }
+    .required { color: #bd3a46; font-weight: 800; }
+
+    .choice-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+    .choice {
+      min-height: 112px; padding: 16px 12px; cursor: pointer; text-align: center;
+      color: var(--ink); background: #fbfcfe; border: 2px solid var(--line); border-radius: 19px;
+      transition: transform .14s ease, border-color .14s ease, background .14s ease, box-shadow .14s ease;
+    }
+    .choice:hover { transform: translateY(-2px); border-color: #b9aae9; }
+    .choice[aria-pressed="true"] { border-color: var(--purple); background: var(--purple-soft); box-shadow: 0 0 0 3px rgba(117,87,216,.11); }
+    .choice-icon { display: block; font-size: 2rem; line-height: 1; margin-bottom: 9px; }
+    .choice-name { display: block; font-weight: 900; }
+    .choice-desc { display: block; margin-top: 4px; color: var(--muted); font-size: .8rem; line-height: 1.35; }
+
+    .field { margin-top: 22px; }
+    .field:first-child { margin-top: 0; }
+    .field-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 9px; }
+    .field-label { font-size: 1.05rem; font-weight: 900; }
+    .ingredient { display: none; }
+    .chips { display: flex; flex-wrap: wrap; gap: 9px; }
+    .chip {
+      min-height: 46px; padding: 9px 14px; cursor: pointer; color: #39445a;
+      border: 2px solid var(--line); border-radius: 14px; background: white; font-weight: 800;
+    }
+    .chip:hover { border-color: #a99ae0; }
+    .chip[aria-pressed="true"] { color: #5c42b4; border-color: var(--purple); background: var(--purple-soft); }
+    .surprise {
+      border-color: #efb35d; color: #a75208; background: #fff7e9;
+    }
+    .custom-box { margin-top: 12px; }
+    .custom-box summary { cursor: pointer; color: var(--blue); font-weight: 800; }
+    .custom-box textarea {
+      width: 100%; min-height: 76px; margin-top: 9px; resize: vertical;
+      padding: 12px 14px; color: var(--ink); border: 2px solid var(--line); border-radius: 14px; background: #fbfcfe;
+    }
+
+    .preview-card { background: linear-gradient(145deg, #684bc8, #8063dd); color: white; border: 0; }
+    .preview-card h2, .preview-card .guide { color: white; }
+    .preview-card .step-number { background: rgba(255,255,255,.18); color: white; }
+    .ingredients { display: flex; flex-wrap: wrap; gap: 7px; margin: 0 0 14px 54px; }
+    .ingredients span { padding: 5px 10px; border-radius: 99px; background: rgba(255,255,255,.15); font-size: .78rem; font-weight: 800; }
+    .ingredients span.on { background: #fff; color: #6347bb; }
+    .prompt-box {
+      min-height: 180px; padding: clamp(18px, 4vw, 28px); white-space: pre-wrap;
+      color: #26324a; background: white; border: 3px solid rgba(255,255,255,.35); border-radius: 20px;
+      font-size: clamp(1rem, 2.7vw, 1.12rem); line-height: 1.75;
+    }
+    .prompt-placeholder { color: #7a8497; font-style: italic; }
+
+    .safety-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 11px; }
+    .safety {
+      position: relative; display: flex; align-items: flex-start; gap: 10px; padding: 15px;
+      border: 2px solid var(--line); border-radius: 17px; background: #fbfcfe; cursor: pointer;
+    }
+    .safety:has(input:checked) { border-color: var(--green); background: var(--green-soft); }
+    .safety input { width: 23px; height: 23px; margin: 1px 0 0; accent-color: var(--green); flex: 0 0 auto; }
+    .safety strong { display: block; }
+    .safety small { display: block; margin-top: 3px; color: var(--muted); line-height: 1.4; }
+
+    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; }
+    .action {
+      min-height: 58px; padding: 13px 18px; border: 0; border-radius: 17px; cursor: pointer;
+      font-weight: 1000; font-size: 1.05rem; box-shadow: 0 7px 0 rgba(36,48,74,.13); transition: transform .12s ease, filter .12s ease;
+    }
+    .action:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.04); }
+    .action:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 3px 0 rgba(36,48,74,.13); }
+    .action:disabled { cursor: not-allowed; background: #dfe4eb; color: #8992a1; box-shadow: none; }
+    .copy { color: white; background: var(--orange); }
+    .reset { color: #5e45b6; background: var(--purple-soft); }
+    .status { min-height: 28px; margin: 12px 0 0; text-align: center; font-weight: 900; }
+    .status.good { color: #087558; }
+    .status.warn { color: #b45309; }
+
+    footer { padding: 24px 0 40px; color: var(--muted); text-align: center; font-size: .86rem; }
+    [hidden] { display: none !important; }
+    .lesson-nav { display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; padding:10px 0; }
+    .lesson-nav button { min-height:52px; }
+    .lesson-nav button[aria-current="step"] { background:var(--purple); color:white; border-color:var(--purple); }
+    .lesson-nav button:disabled { opacity:.55; cursor:not-allowed; }
+    .lesson-heading { scroll-margin-top:150px; }
+    .definition { padding:20px; background:var(--blue-soft); border-radius:18px; font-size:1.15rem; }
+    .example-pair { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr)); gap:14px; margin:18px 0; }
+    .example-pair article { padding:18px; background:#f5f7fb; border-radius:16px; }
+    .feedback { min-height:30px; padding:12px 0; font-weight:800; color:#18664f; }
+    .quiz { border-top:1px solid var(--line); padding-top:18px; margin-top:18px; }
+    #meaningQuiz { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    #meaningQuiz .chip { min-height: 88px; text-align: left; line-height: 1.55; }
+    .element-toolbar { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin: 18px 0 10px; }
+    .element-choice {
+      min-height: 76px; padding: 9px 6px; border: 3px solid #858585; border-radius: 14px;
+      background: white; color: #202020; cursor: pointer; font-weight: 900; line-height: 1.25;
+    }
+    .element-choice small { display: block; margin-top: 3px; font-size: .72rem; font-weight: 800; }
+    .element-choice[aria-pressed="true"] { border-color: var(--element-color); background: var(--element-soft); box-shadow: 0 0 0 3px var(--element-soft); }
+    .example-button-row { display: flex; justify-content: flex-end; margin: 8px 0; }
+    .example-open { padding: 10px 20px; border: 0; border-radius: 10px; background: #172033; color: white; cursor: pointer; font-weight: 900; }
+    .element-explanation { min-height: 180px; padding: 24px; border: 5px solid #7757dc; border-radius: 28px; background: #f2d8ff; }
+    .element-explanation h3 { margin: 0 0 10px; font-size: 1.35rem; }
+    .element-explanation p { margin: 8px 0; }
+    .element-example { font-weight: 900; }
+    .example-dialog, .image-dialog { width: min(900px, calc(100% - 24px)); max-height: 90vh; padding: 0; border: 0; border-radius: 24px; box-shadow: 0 24px 80px rgba(15,23,42,.35); }
+    .example-dialog::backdrop, .image-dialog::backdrop { background: rgba(25,32,54,.68); backdrop-filter: blur(3px); }
+    .dialog-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 22px; color: white; background: var(--purple); }
+    .dialog-head h2 { margin: 0; }
+    .dialog-close { width: 44px; height: 44px; border: 0; border-radius: 50%; background: rgba(255,255,255,.2); color: white; cursor: pointer; font-size: 1.35rem; font-weight: 900; }
+    .dialog-body { padding: clamp(18px, 4vw, 30px); overflow-y: auto; }
+    .example-prompt { padding: 20px; border: 2px solid var(--line); border-radius: 16px; background: #fff; line-height: 2; }
+    .prompt-segment { display: inline; padding: 3px 5px; border-radius: 5px; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+    .part-task { background: #ffe66f; }
+    .part-context { background: #ff9a8f; }
+    .part-persona { background: #9bbcff; }
+    .part-example { background: #ffc36f; }
+    .part-format { background: #a8db96; }
+    .part-tone { background: #f3a2c8; }
+    .example-legend { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
+    .legend-item { padding: 5px 10px; border-radius: 8px; font-size: .82rem; font-weight: 900; }
+    .example-nav { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 18px; }
+    .example-nav button { min-width: 105px; }
+    .guess-intro { text-align: center; margin: 0 0 18px; color: var(--muted); }
+    .image-gallery { width: min(820px, 100%); margin: 0 auto; display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+    .image-card { padding: 0; overflow: hidden; border: 4px solid transparent; border-radius: 18px; background: white; cursor: zoom-in; box-shadow: var(--shadow); transition: transform .15s ease, border-color .15s ease; }
+    .image-card:hover { transform: translateY(-3px); border-color: var(--purple); }
+    .image-card img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+    .image-card span { display: block; padding: 9px; color: var(--ink); font-weight: 900; }
+    .guess-image { display: block; width: 100%; max-height: 55vh; object-fit: contain; border-radius: 16px; background: #eef1f6; }
+    .talk-box { margin-top: 16px; padding: 16px 18px; border-radius: 16px; background: var(--purple-soft); }
+    .talk-box h3 { margin: 0 0 7px; color: #5e45b6; }
+    .talk-box ul { margin: 6px 0; padding-left: 24px; }
+    .prompt-frame { margin: 12px 0 0; padding: 12px 14px; border: 2px dashed #9b87df; border-radius: 12px; background: white; font-weight: 900; }
+
+    @media (max-width: 720px) {
+      .lesson-nav { grid-template-columns: repeat(2, 1fr); }
+      .choice-grid { grid-template-columns: repeat(2, 1fr); }
+      .choice { min-height: 105px; }
+      .safety-grid, .actions { grid-template-columns: 1fr; }
+      .guide, .ingredients { margin-left: 0; }
+      .step-title { align-items: center; }
+      .element-toolbar { grid-template-columns: repeat(3, 1fr); }
+      #meaningQuiz { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 420px) {
+      .wrap { width: min(100% - 18px, 1080px); }
+      .card { border-radius: 21px; padding: 18px 14px; }
+      .choice-grid { gap: 8px; }
+      .choice { padding: 13px 8px; }
+      .chip { width: 100%; text-align: left; }
+      .element-toolbar { grid-template-columns: repeat(2, 1fr); }
+      .example-nav .chip { width: auto; text-align: center; }
+      .image-gallery { gap: 9px; }
+      .image-card span { font-size: .85rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { scroll-behavior: auto !important; transition: none !important; }
+    }
+    @media print {
+      body { background: white; }
+      .progress, .actions, .custom-box, footer { display: none !important; }
+      .card { box-shadow: none; break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <header class="wrap">
+    <span class="eyebrow">✨ 초등 3~6학년 생성형 AI 활동지</span>
+    <h1>프롬프트 활동지</h1>
+  </header>
+
+  <div class="progress" aria-label="활동 진행률">
+    <nav class="wrap lesson-nav" aria-label="학습 단계">
+      <button class="chip" id="lessonNav1" aria-current="step" type="button">1. 뜻 알아보기</button>
+      <button class="chip" id="lessonNav2" type="button">2. 요소 찾기</button>
+      <button class="chip" id="lessonNav3" type="button">3. 그림 보고 추측하기</button>
+      <button class="chip" id="lessonNav4" type="button">4. 직접 만들기</button>
+    </nav>
+    <div class="wrap progress-inner" id="creationProgress" hidden>
+      <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
+      <span class="progress-text" id="progressText">0 / 5</span>
+    </div>
+  </div>
+
+  <main class="wrap">
+    <section id="lesson1" tabindex="-1" aria-label="1단계 뜻 알아보기">
+      <div class="card">
+        <p class="definition"><strong>프롬프트는 AI에게 보내는 질문이나 부탁이에요.</strong><br>오늘은 글로 부탁해 봐요.</p>
+        <div class="example-pair">
+          <article><strong>👧 내가 AI에게 보낸 말 → 프롬프트</strong><p>“우주를 여행하는 고양이 이야기를 써 줘.”</p></article>
+          <article><strong>🤖 AI가 만들어 준 것 → 결과</strong><p>“고양이 나비는 달로 가는 우주선에 올랐어요.<br>달나라에서 토끼 친구와 반짝이는 돌을 찾았어요.<br>신나는 여행을 마치고 지구로 돌아왔어요.”</p></article>
+        </div>
+        <div class="quiz"><h3>활동 ① 무엇이 프롬프트일까요?</h3><div class="chips" id="meaningQuiz"></div><p class="feedback" id="meaningFeedback" role="status"></p></div>
+        <div class="quiz"><h3>활동 ② 어느 부탁이 더 자세할까요?</h3>
+          <div class="example-pair"><article><strong>A</strong><p>“고양이를 그려 줘.”</p></article><article><strong>B</strong><p>“빨간 모자를 쓴 치즈고양이가 커다란 나무 밑에서 낮잠을 자고 있는 모습을 치비 스타일로 그려 줘.”</p></article></div>
+          <div class="chips" id="compareQuiz"></div><p class="feedback" id="compareFeedback" role="status"></p>
+        </div>
+        <button type="button" class="action copy" id="toLesson2">2단계 요소 찾기로 →</button>
+      </div>
+    </section>
+    <section id="lesson2" hidden aria-labelledby="lessonHeading2">
+      <div class="card">
+        <h2 class="lesson-heading" id="lessonHeading2" tabindex="-1">부탁에 넣는 재료를 찾아요</h2>
+        <div class="element-toolbar" id="elementExplore" role="group" aria-label="프롬프트 요소 설명 보기"></div>
+        <div class="example-button-row"><button type="button" class="example-open" id="openExamples">예시 보기</button></div>
+        <div class="element-explanation" id="elementDescription" aria-live="polite">
+          <h3 id="elementDescriptionTitle">명령 (Task)</h3>
+          <p id="elementDescriptionText"></p>
+          <p class="element-example" id="elementDescriptionExample"></p>
+        </div>
+        <button type="button" class="action copy" id="toLesson3">3단계 그림 보고 추측하기 →</button>
+      </div>
+    </section>
+    <dialog class="example-dialog" id="exampleDialog" aria-labelledby="exampleDialogTitle">
+      <div class="dialog-head">
+        <h2 id="exampleDialogTitle">색깔로 보는 프롬프트 예시</h2>
+        <button type="button" class="dialog-close" id="closeExamples" aria-label="예시 창 닫기">×</button>
+      </div>
+      <div class="dialog-body">
+        <p>같은 색이 같은 요소예요. 문장을 읽으며 여섯 요소를 찾아보세요.</p>
+        <h3 id="exampleTitle"></h3>
+        <div class="example-prompt" id="examplePrompt"></div>
+        <div class="example-legend" id="exampleLegend" aria-label="프롬프트 요소 색상표"></div>
+        <div class="example-nav">
+          <button type="button" class="chip" id="previousExample">← 이전</button>
+          <strong id="exampleCounter" aria-live="polite"></strong>
+          <button type="button" class="chip" id="nextExample">다음 →</button>
+        </div>
+      </div>
+    </dialog>
+    <section id="lesson3" hidden tabindex="-1" aria-label="3단계 그림 보고 프롬프트 추측하기">
+      <div class="card">
+        <h2>그림을 보고 프롬프트를 떠올려요</h2>
+        <p class="guess-intro">그림을 누르면 크게 보여요. 친구와 어떤 부탁으로 만든 그림인지 이야기해 보세요.</p>
+        <div class="image-gallery" id="imageGallery" aria-label="프롬프트 추측 그림 네 장"></div>
+        <div class="actions"><button type="button" class="action copy" id="toLesson4">4단계 직접 만들기로 →</button></div>
+      </div>
+    </section>
+    <dialog class="image-dialog" id="imageDialog" aria-labelledby="guessDialogTitle">
+      <div class="dialog-head">
+        <h2 id="guessDialogTitle">그림을 자세히 살펴봐요</h2>
+        <button type="button" class="dialog-close" id="closeGuessImage" aria-label="확대 그림 닫기">×</button>
+      </div>
+      <div class="dialog-body">
+        <img class="guess-image" id="largeGuessImage" alt="">
+        <div class="talk-box">
+          <h3>친구와 이야기해요</h3>
+          <ul>
+            <li>누가, 어디에서, 무엇을 하고 있나요?</li>
+            <li>색과 분위기, 그림의 느낌은 어떤가요?</li>
+            <li>이 그림 앞과 뒤에는 어떤 일이 있었을까요?</li>
+          </ul>
+          <p class="prompt-frame">“_____가 _____에서 _____하는 모습을 _____ 느낌으로 그려 줘.”</p>
+        </div>
+      </div>
+    </dialog>
+    <div id="lesson4" hidden tabindex="-1" aria-label="4단계 직접 만들기">
+    <section class="card" id="step1">
+      <div class="step-title"><span class="step-number">1</span><h2>무엇을 만들까요?</h2></div>
+      <p class="guide"><span class="required">필수</span> · 글 또는 이미지 창작물을 하나 고르세요.</p>
+      <div class="choice-grid" id="outputChoices" role="group" aria-label="만들 창작물 선택"></div>
+    </section>
+
+    <section class="card" id="step2">
+      <div class="step-title"><span class="step-number">2</span><h2>어떤 내용을 담을까요?</h2></div>
+      <p class="guide">아래에서 고르거나 직접 써요.</p>
+      <div class="field">
+        <div class="field-head"><span class="field-label">① 큰 주제</span><span class="ingredient">맥락 context</span></div>
+        <div class="chips" id="topicChoices" role="group" aria-label="큰 주제 선택"></div>
+      </div>
+      <div class="field">
+        <div class="field-head"><span class="field-label">② 자세한 내용</span><span class="ingredient">명령 task</span></div>
+        <div class="chips" id="detailChoices" role="group" aria-label="자세한 내용 선택"><span class="prompt-placeholder">먼저 큰 주제를 골라 주세요.</span></div>
+        <div class="custom-box">
+          <label for="customDetail" class="field-label">✏️ 내 생각 쓰기</label>
+          <textarea id="customDetail" maxlength="1000" placeholder="예: 달에서 토끼와 축구하는 이야기"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" id="step3">
+      <div class="step-title"><span class="step-number">3</span><h2>AI에게 방법을 알려 주세요</h2></div>
+      <p class="guide">필요한 재료를 더 골라요.</p>
+      <div class="field">
+        <div class="field-head"><span class="field-label">① AI의 역할</span><span class="ingredient">페르소나 persona</span></div>
+        <div class="chips" id="roleChoices" role="group" aria-label="AI 역할 선택"></div>
+      </div>
+      <div class="field">
+        <div class="field-head"><span class="field-label">② 누구를 위한 창작물인가요?</span><span class="ingredient">맥락 context</span></div>
+        <div class="chips" id="audienceChoices" role="group" aria-label="대상 선택"></div>
+      </div>
+      <div class="field">
+        <div class="field-head"><span class="field-label">③ 어떤 느낌으로 만들까요?</span><span class="ingredient">어조 tone</span></div>
+        <div class="chips" id="toneChoices" role="group" aria-label="느낌 선택"></div>
+      </div>
+      <div class="field">
+        <div class="field-head"><span class="field-label">④ 어떤 모양과 길이로 만들까요?</span><span class="ingredient">포맷 format</span></div>
+        <div class="chips" id="formatChoices" role="group" aria-label="형식 선택"></div>
+      </div>
+      <div class="field">
+        <div class="field-head"><span class="field-label">⑤ 참고할 예시가 있나요? (선택)</span><span class="ingredient">예시 example</span></div>
+        <div class="chips" id="exampleChoices" role="group" aria-label="참고 예시 선택"></div>
+      </div>
+    </section>
+
+    <section class="card preview-card" id="step4">
+      <div class="step-title"><span class="step-number">4</span><h2>완성된 프롬프트를 확인해요</h2></div>
+      <p class="guide">내가 원하는 부탁인지 읽어 봐요.</p>
+      <div class="ingredients" id="ingredientBadges" aria-label="포함된 프롬프트 요소">
+        <span data-part="task">할 일</span><span data-part="context">배경·대상</span><span data-part="persona">역할</span><span data-part="example">예시</span><span data-part="format">형식·길이</span><span data-part="tone">말투·느낌</span>
+      </div>
+      <div class="prompt-box" id="promptPreview" aria-live="polite"><span class="prompt-placeholder">1~3단계의 단추를 고르면 이곳에 프롬프트가 나타납니다.</span></div>
+    </section>
+
+    <section class="card" id="step5">
+      <div class="step-title"><span class="step-number">5</span><h2>안전 약속을 확인하고 복사해요</h2></div>
+      <p class="guide">세 가지 약속을 확인해요.</p>
+      <div class="safety-grid">
+        <label class="safety"><input type="checkbox" class="safetyCheck"><span><strong>🔒 개인정보 보호</strong><small>이름, 학교, 주소, 전화번호를 쓰지 않았어요.</small></span></label>
+        <label class="safety"><input type="checkbox" class="safetyCheck"><span><strong>💚 바른 표현 사용</strong><small>다른 사람을 놀리거나 상처 주는 내용이 없어요.</small></span></label>
+        <label class="safety"><input type="checkbox" class="safetyCheck"><span><strong>🔎 결과 다시 확인</strong><small>AI의 글과 그림이 언제나 정확한 것은 아님을 알아요.</small></span></label>
+      </div>
+      <div class="actions">
+        <button type="button" class="action copy" id="copyButton" disabled>📋 프롬프트 복사하기</button>
+        <button type="button" class="action reset" id="resetButton">↺ 처음부터 다시 만들기</button>
+      </div>
+      <p class="status" id="statusMessage" aria-live="polite"></p>
+    </section>
+
+    </div>
+  </main>
+
+  <footer class="wrap">프롬프트 활동지</footer>
+
+  <script>
+    const outputTypes = [
+      { id: 'story', icon: '📖', name: '이야기', desc: '동화나 짧은 소설', mode: 'text', role: ['상상력이 풍부한 동화 작가', '흥미진진한 모험 작가', '따뜻한 이야기를 쓰는 작가'], formats: ['제목과 3개 문단', '시작·사건·해결 구조', '600자 안팎의 짧은 이야기'] },
+      { id: 'explain', icon: '💡', name: '설명글', desc: '쉽고 정확한 정보', mode: 'text', role: ['친절한 초등학교 선생님', '호기심 많은 과학 해설가', '쉽게 설명하는 어린이 기자'], formats: ['핵심 3가지를 목록으로', '제목과 짧은 문단으로', '예시를 넣어 500자 안팎으로'] },
+      { id: 'poem', icon: '🎵', name: '시·노래', desc: '리듬이 있는 글', mode: 'text', role: ['재미있는 어린이 시인', '말놀이를 잘하는 작사가', '자연을 사랑하는 시인'], formats: ['4연으로 된 짧은 시', '후렴이 반복되는 노래', '8줄 안팎의 동시'] },
+      { id: 'ideas', icon: '🧩', name: '아이디어', desc: '문제 해결 방법', mode: 'text', role: ['창의적인 발명가', '생활 문제 해결 전문가', '아이디어를 잘 내는 친구'], formats: ['실천 방법 5가지 목록', '문제·원인·해결 순서', '준비물과 방법을 표처럼 정리'] },
+      { id: 'scene', icon: '🖼️', name: '장면 그림', desc: '이야기가 보이는 한 장면', mode: 'image', role: ['상상력이 풍부한 그림 작가', '장면을 생생하게 표현하는 일러스트레이터', '색을 잘 쓰는 어린이책 화가'], formats: ['가로로 넓은 한 장면', '세로로 긴 한 장면', '주인공이 크게 보이는 정사각형'] },
+      { id: 'poster', icon: '📣', name: '포스터', desc: '생각을 알리는 이미지', mode: 'image', role: ['메시지를 잘 보여주는 포스터 디자이너', '어린이 눈높이의 시각 디자이너', '환경 캠페인 디자이너'], formats: ['세로형 포스터, 글자는 넣지 않기', '중앙 그림이 큰 포스터', '상징 3개가 잘 보이는 포스터'] },
+      { id: 'character', icon: '🦸', name: '캐릭터', desc: '나만의 주인공 디자인', mode: 'image', role: ['개성 있는 캐릭터 디자이너', '귀여운 동물 캐릭터 작가', '판타지 주인공을 만드는 디자이너'], formats: ['전신이 보이는 정면 모습', '세 가지 표정이 함께 보이는 구성', '대표 물건과 함께 있는 정사각형'] }
+    ];
+
+    const topics = {
+      environment: { label: '🌍 환경', details: ['바다 쓰레기를 줄이는 영웅의 활약', '우리 반에서 실천할 수 있는 분리배출', '사라진 꿀벌을 다시 돌아오게 하는 방법', '전기를 아끼는 똑똑한 하루'] },
+      space: { label: '🚀 우주', details: ['처음 발견한 무지개빛 행성', '달에 세운 신기한 학교', '지구를 찾아온 친절한 외계인', '우주 쓰레기를 청소하는 로봇'] },
+      animals: { label: '🐾 동물', details: ['사람의 말을 알아듣는 고양이', '길을 잃은 아기 바다거북', '숲속 동물들의 비밀 운동회', '멸종 위기 동물을 지키는 방법'] },
+      school: { label: '🏫 학교', details: ['친구와 사이좋게 지내는 방법', '우리 학교를 더 즐겁게 만드는 아이디어', '교실에서 벌어진 신기한 사건', '새로 온 친구를 돕는 따뜻한 하루'] },
+      fantasy: { label: '🏰 상상·모험', details: ['구름 위에 숨겨진 마법 도서관', '시간을 되돌리는 신기한 시계', '용과 친구가 된 작은 기사', '꿈속 도시를 여행하는 탐험대'] },
+      science: { label: '🔬 과학', details: ['물이 얼음과 수증기로 변하는 과정', '식물이 햇빛을 먹고 자라는 까닭', '생활을 돕는 미래 로봇', '화산이 폭발하는 까닭'] },
+      culture: { label: '🎎 문화', details: ['우리나라 전통 놀이의 즐거움', '옛날과 오늘날의 학교 비교', '세계 여러 나라의 특별한 음식', '우리 동네의 자랑스러운 장소'] },
+      heart: { label: '💛 마음·우정', details: ['용기 내어 사과하는 방법', '속상한 친구의 마음을 알아주는 말', '서로 다름을 존중하는 교실', '작은 친절이 만든 큰 변화'] }
+    };
+
+    const audiences = ['초등학교 저학년 동생', '우리 반 친구들', '우리 가족', '이 주제를 처음 배우는 사람', '어린이와 어른 모두'];
+    const tones = {
+      text: ['쉽고 친절하게', '재미있고 신나게', '따뜻하고 감동적으로', '궁금해지도록 신비롭게', '정확하고 차분하게'],
+      image: ['밝고 따뜻한 분위기', '신비롭고 환상적인 분위기', '귀엽고 유쾌한 분위기', '힘차고 용감한 분위기', '차분하고 평화로운 분위기']
+    };
+    const state = { output: '', topic: '', detail: '', role: '', audience: '', tone: '', format: '', example: '' };
+    const byId = id => document.getElementById(id);
+    const learned = { meaning: false, compare: false };
+    const elements = [
+      { key: 'task', name: '명령', english: 'Task', color: '#d8bb20', soft: '#fff7bd', explanation: '가장 중요한 요소예요. AI가 무엇을 해야 하는지 정확히 알려 줍니다.', example: '예: “이야기를 작성해 줘.”, “이 글을 요약해 줘.”', sentence: '토끼 이야기를 써 줘.' },
+      { key: 'context', name: '맥락', english: 'Context', color: '#e76d60', soft: '#ffe0dc', explanation: '명령과 관련된 배경이나 상황을 알려 줍니다. 상황을 자세히 말하면 AI가 더 잘 이해합니다.', example: '예: “우리 반 친구들이 환경을 처음 배우는 시간이야.”', sentence: '우리 반 친구들이 읽을 거야.' },
+      { key: 'persona', name: '인물·역할', english: 'Persona', color: '#4f7ed8', soft: '#dce8ff', explanation: 'AI에게 특정한 역할이나 성격을 맡깁니다. 역할에 따라 답변의 방식과 전문성이 달라집니다.', example: '예: “너는 친절한 초등학교 과학 선생님이야.”', sentence: '너는 동화 작가야.' },
+      { key: 'example', name: '예시', english: 'Example', color: '#dc8c25', soft: '#ffe9c8', explanation: 'AI가 원하는 결과를 이해하도록 본보기를 보여 줍니다. 구체적인 예가 있으면 더 정확하게 수행할 수 있습니다.', example: '예: “옛날 옛날에…”처럼 이야기를 시작해 줘.', sentence: '“옛날 옛날에…”처럼 시작해 줘.' },
+      { key: 'format', name: '형식', english: 'Format', color: '#4f9b45', soft: '#dff2d9', explanation: '원하는 결과물의 모양을 알려 줍니다. 글, 목록, 표, 그림처럼 결과가 어떤 모습인지 말합니다.', example: '예: “제목과 세 문단으로 써 줘.”', sentence: '다섯 줄로 써 줘.' },
+      { key: 'tone', name: '어조', english: 'Tone', color: '#d6609b', soft: '#f9ddec', explanation: '결과의 말투와 분위기를 알려 줍니다. 친절하게, 간단하게, 자세하게 등으로 정할 수 있습니다.', example: '예: “초등학생이 이해하도록 쉽고 재미있게 설명해 줘.”', sentence: '재미있게 써 줘.' }
+    ];
+    const promptExamples = [
+      {
+        title: '예시 1 · 태양계 설명글',
+        segments: [
+          ['persona', '너는 초등학생에게 과학을 가르치는 선생님이야.'],
+          ['task', '초등학교 3학년을 위한 태양계 소개 글을 만들어 줘.'],
+          ['context', '우리 반은 행성 이름을 처음 배우고 있어.'],
+          ['example', '예를 들어 “지구는 우리가 사는 푸른 행성이야.”처럼 설명해 줘.'],
+          ['format', '태양과 행성 4개를 제목과 두 문장씩 써 줘.'],
+          ['tone', '쉽고 재미있는 말로 설명해 줘.']
+        ]
+      },
+      {
+        title: '예시 2 · 바다거북 이야기',
+        segments: [
+          ['persona', '너는 상상력이 풍부한 동화 작가야.'],
+          ['task', '길을 잃은 아기 바다거북 이야기를 써 줘.'],
+          ['context', '이 이야기는 우리 반 친구들에게 읽어 줄 거야.'],
+          ['example', '“파도가 반짝이던 어느 날…”처럼 시작해 줘.'],
+          ['format', '시작, 사건, 해결이 드러나게 5문단으로 써 줘.'],
+          ['tone', '따뜻하고 신나는 느낌으로 써 줘.']
+        ]
+      },
+      {
+        title: '예시 3 · 치즈고양이 그림',
+        segments: [
+          ['persona', '너는 귀여운 어린이책 그림 작가야.'],
+          ['task', '빨간 모자를 쓴 치즈고양이가 커다란 나무 밑에서 낮잠을 자는 모습을 그려 줘.'],
+          ['context', '초등학교 3학년 동화책 표지에 사용할 그림이야.'],
+          ['example', '머리는 몸보다 크게, 표정은 편안하게 표현해 줘.'],
+          ['format', '글자 없는 정사각형 그림 한 장으로 만들어 줘.'],
+          ['tone', '치비 스타일로 귀엽고 포근하게 표현해 줘.']
+        ]
+      },
+      {
+        title: '예시 4 · 환경 포스터',
+        segments: [
+          ['persona', '너는 어린이를 위한 환경 포스터 디자이너야.'],
+          ['task', '플라스틱 사용을 줄이자는 포스터를 만들어 줘.'],
+          ['context', '학교 복도에 붙여 전교생에게 보여 줄 거야.'],
+          ['example', '다회용 물병과 장바구니가 잘 보이게 해 줘.'],
+          ['format', '세로형 포스터 한 장으로 만들고 짧은 제목을 넣어 줘.'],
+          ['tone', '밝고 힘찬 분위기로 표현해 줘.']
+        ]
+      }
+    ];
+    let currentExample = 0;
+    const guessImages = [
+      { src: 'img/01콩쥐.png', label: '그림 1', alt: '깨진 장독대 옆에서 개구리와 소녀가 물을 바라보는 그림' },
+      { src: 'img/02신호등.png', label: '그림 2', alt: '노란불이 켜진 신호등 앞에서 운전자가 당황하는 그림' },
+      { src: 'img/03신호등.png', label: '그림 3', alt: '물에 잠긴 교실에서 학생이 놀라 울고 있는 그림' },
+      { src: 'img/04돌다리.png', label: '그림 4', alt: '시골 개울의 돌다리를 살펴보는 소년과 강아지 그림' }
+    ];
+
+    function showLesson(number) {
+      for (let i = 1; i <= 4; i++) {
+        byId(`lesson${i}`).hidden = i !== number;
+        if (i === number) byId(`lessonNav${i}`).setAttribute('aria-current', 'step');
+        else byId(`lessonNav${i}`).removeAttribute('aria-current');
+      }
+      byId('creationProgress').hidden = number !== 4;
+      const lessonTarget = number === 2 ? byId('lessonHeading2') : byId(`lesson${number}`);
+      lessonTarget.focus({ preventScroll: true });
+      lessonTarget.scrollIntoView({ block: 'start' });
+    }
+
+    function updateLessons() {
+      const firstDone = learned.meaning && learned.compare;
+      if (firstDone) byId('toLesson2').textContent = '잘했어요! 2단계 요소 찾기로 →';
+    }
+
+    function quizButtons(containerId, options, correctIndex, feedbackId, key, success, retry) {
+      options.forEach((label, index) => {
+        const button = document.createElement('button');
+        button.type = 'button'; button.className = 'chip'; button.textContent = label;
+        button.setAttribute('aria-pressed', 'false');
+        button.addEventListener('click', () => {
+          byId(containerId).querySelectorAll('button').forEach(other => other.setAttribute('aria-pressed', String(other === button)));
+          const correct = index === correctIndex;
+          byId(feedbackId).textContent = correct ? success : retry;
+          learned[key] = correct;
+          updateLessons();
+        });
+        byId(containerId).appendChild(button);
+      });
+    }
+
+    function showElementDescription(index) {
+      const element = elements[index];
+      byId('elementExplore').querySelectorAll('button').forEach((button, buttonIndex) => {
+        button.setAttribute('aria-pressed', String(buttonIndex === index));
+      });
+      byId('elementDescriptionTitle').textContent = `${element.name} (${element.english})`;
+      byId('elementDescriptionText').textContent = element.explanation;
+      byId('elementDescriptionExample').textContent = element.example;
+      byId('elementDescription').style.borderColor = element.color;
+      byId('elementDescription').style.background = element.soft;
+    }
+
+    function renderPromptExample() {
+      const example = promptExamples[currentExample];
+      byId('exampleTitle').textContent = example.title;
+      const promptBox = byId('examplePrompt');
+      promptBox.replaceChildren();
+      example.segments.forEach(([key, text], index) => {
+        const segment = document.createElement('span');
+        segment.className = `prompt-segment part-${key}`;
+        segment.textContent = text;
+        promptBox.appendChild(segment);
+        if (index < example.segments.length - 1) promptBox.appendChild(document.createTextNode(' '));
+      });
+      const legend = byId('exampleLegend');
+      legend.replaceChildren();
+      elements.forEach(element => {
+        const item = document.createElement('span');
+        item.className = `legend-item part-${element.key}`;
+        item.textContent = `${element.name} (${element.english})`;
+        legend.appendChild(item);
+      });
+      byId('exampleCounter').textContent = `${currentExample + 1} / ${promptExamples.length}`;
+      byId('previousExample').disabled = currentExample === 0;
+      byId('nextExample').disabled = currentExample === promptExamples.length - 1;
+    }
+
+    function openExampleDialog() {
+      renderPromptExample();
+      const dialog = byId('exampleDialog');
+      if (typeof dialog.showModal === 'function') dialog.showModal();
+      else dialog.setAttribute('open', '');
+    }
+
+    function closeExampleDialog() {
+      const dialog = byId('exampleDialog');
+      if (typeof dialog.close === 'function') dialog.close();
+      else dialog.removeAttribute('open');
+    }
+
+    function openGuessImage(index) {
+      const image = guessImages[index];
+      byId('guessDialogTitle').textContent = `${image.label}을 크게 살펴봐요`;
+      byId('largeGuessImage').src = image.src;
+      byId('largeGuessImage').alt = image.alt;
+      const dialog = byId('imageDialog');
+      if (typeof dialog.showModal === 'function') dialog.showModal();
+      else dialog.setAttribute('open', '');
+    }
+
+    function closeGuessImage() {
+      const dialog = byId('imageDialog');
+      if (typeof dialog.close === 'function') dialog.close();
+      else dialog.removeAttribute('open');
+    }
+
+    function initGuessGallery() {
+      guessImages.forEach((image, index) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'image-card';
+        button.setAttribute('aria-label', `${image.label} 크게 보기`);
+        const thumbnail = document.createElement('img');
+        thumbnail.src = image.src;
+        thumbnail.alt = image.alt;
+        thumbnail.loading = 'lazy';
+        const label = document.createElement('span');
+        label.textContent = `${image.label} · 눌러서 크게 보기`;
+        button.append(thumbnail, label);
+        button.addEventListener('click', () => openGuessImage(index));
+        byId('imageGallery').appendChild(button);
+      });
+      byId('closeGuessImage').addEventListener('click', closeGuessImage);
+    }
+
+    function initLessons() {
+      quizButtons(
+        'meaningQuiz',
+        ['AI가 원하는 결과물(글, 그림, 코드 등)을 만들도록 하는 질문 또는 명령', 'AI가 생성한 결과물(글, 그림, 코드 등)'],
+        0,
+        'meaningFeedback',
+        'meaning',
+        '맞아요! AI에게 보내는 질문이나 명령이 프롬프트예요.',
+        '이것은 AI가 생성한 결과물이에요. 다시 골라요.'
+      );
+      quizButtons('compareQuiz', ['A', 'B'], 1, 'compareFeedback', 'compare', '맞아요! B는 고양이의 모습, 장소, 행동, 그림 느낌을 자세히 알려 줘요.', '고양이의 모습, 장소, 행동, 그림 느낌을 모두 알려 준 부탁을 찾아요.');
+      elements.forEach((element, index) => {
+        const explore = document.createElement('button');
+        explore.type = 'button'; explore.className = 'element-choice';
+        explore.innerHTML = `${element.name}<small>(${element.english})</small>`;
+        explore.style.setProperty('--element-color', element.color);
+        explore.style.setProperty('--element-soft', element.soft);
+        explore.setAttribute('aria-pressed', 'false');
+        explore.addEventListener('click', () => showElementDescription(index));
+        byId('elementExplore').appendChild(explore);
+      });
+      showElementDescription(0);
+      byId('openExamples').addEventListener('click', openExampleDialog);
+      byId('closeExamples').addEventListener('click', closeExampleDialog);
+      byId('previousExample').addEventListener('click', () => { if (currentExample > 0) { currentExample--; renderPromptExample(); } });
+      byId('nextExample').addEventListener('click', () => { if (currentExample < promptExamples.length - 1) { currentExample++; renderPromptExample(); } });
+      initGuessGallery();
+      for (let i = 1; i <= 4; i++) byId(`lessonNav${i}`).addEventListener('click', () => showLesson(i));
+      byId('toLesson2').addEventListener('click', () => showLesson(2));
+      byId('toLesson3').addEventListener('click', () => showLesson(3));
+      byId('toLesson4').addEventListener('click', () => showLesson(4));
+    }
+
+    function makeButton(label, value, group, extraClass = '') {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = `chip ${extraClass}`.trim();
+      button.textContent = label;
+      button.dataset.value = value;
+      button.dataset.group = group;
+      button.setAttribute('aria-pressed', 'false');
+      button.addEventListener('click', () => select(group, value));
+      return button;
+    }
+
+    function renderOutputChoices() {
+      const box = byId('outputChoices');
+      outputTypes.forEach(item => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'choice';
+        button.dataset.value = item.id;
+        button.dataset.group = 'output';
+        button.setAttribute('aria-pressed', 'false');
+        button.innerHTML = `<span class="choice-icon" aria-hidden="true">${item.icon}</span><span class="choice-name">${item.name}</span><span class="choice-desc">${item.desc}</span>`;
+        button.addEventListener('click', () => select('output', item.id));
+        box.appendChild(button);
+      });
+    }
+
+    function renderTopics() {
+      const box = byId('topicChoices');
+      Object.entries(topics).forEach(([key, item]) => box.appendChild(makeButton(item.label, key, 'topic')));
+      const random = document.createElement('button');
+      random.type = 'button';
+      random.className = 'chip surprise';
+      random.textContent = '🎲 알아서 골라 줘';
+      random.addEventListener('click', randomChoice);
+      box.appendChild(random);
+    }
+
+    function renderDetails() {
+      const box = byId('detailChoices');
+      box.innerHTML = '';
+      if (!state.topic) {
+        box.innerHTML = '<span class="prompt-placeholder">먼저 큰 주제를 골라 주세요.</span>';
+        return;
+      }
+      topics[state.topic].details.forEach(text => box.appendChild(makeButton(text, text, 'detail')));
+    }
+
+    function renderOptionsForOutput() {
+      const selected = outputTypes.find(item => item.id === state.output);
+      renderButtonList('roleChoices', selected ? selected.role : ['먼저 1단계에서 창작물을 골라 주세요'], 'role', !selected);
+      renderButtonList('audienceChoices', audiences, 'audience');
+      renderButtonList('toneChoices', selected ? tones[selected.mode] : ['먼저 1단계에서 창작물을 골라 주세요'], 'tone', !selected);
+      renderButtonList('formatChoices', selected ? selected.formats : ['먼저 1단계에서 창작물을 골라 주세요'], 'format', !selected);
+      renderButtonList('exampleChoices', selected ? (selected.mode === 'image' ? ['예시 없이 만들기', '예: 큰 주인공을 가운데, 작은 배경을 뒤쪽에 배치'] : ['예시 없이 만들기', '예: “알고 있나요?”라는 질문으로 시작', '예: “어느 날, 뜻밖의 일이 일어났어요.”처럼 시작']) : ['먼저 창작물을 골라 주세요'], 'example', !selected);
+      document.querySelectorAll('[data-group="audience"]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.value === state.audience)));
+    }
+
+    function renderButtonList(id, values, group, disabled = false) {
+      const box = byId(id);
+      box.innerHTML = '';
+      values.forEach(value => {
+        const button = makeButton(value, value, group);
+        button.disabled = disabled;
+        if (disabled) button.classList.add('prompt-placeholder');
+        box.appendChild(button);
+      });
+    }
+
+    function select(group, value) {
+      state[group] = value;
+      document.querySelectorAll(`[data-group="${group}"]`).forEach(button => {
+        button.setAttribute('aria-pressed', String(button.dataset.value === state[group]));
+      });
+      if (group === 'output') {
+        state.role = ''; state.tone = ''; state.format = ''; state.example = '';
+        renderOptionsForOutput();
+      }
+      if (group === 'topic') { state.detail = ''; renderDetails(); }
+      update();
+    }
+
+    function randomChoice() {
+      const topicKeys = Object.keys(topics);
+      state.topic = topicKeys[Math.floor(Math.random() * topicKeys.length)];
+      renderDetails();
+      const detailList = topics[state.topic].details;
+      state.detail = detailList[Math.floor(Math.random() * detailList.length)];
+      document.querySelectorAll('[data-group="topic"]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.value === state.topic)));
+      document.querySelectorAll('[data-group="detail"]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.value === state.detail)));
+      update();
+    }
+
+    function getDetail() { return byId('customDetail').value.trim() || state.detail; }
+
+    function buildPrompt() {
+      const output = outputTypes.find(item => item.id === state.output);
+      const detail = getDetail();
+      if (!output || !detail) return '';
+      const lines = [];
+      if (state.role) lines.push(`[역할] 당신은 ${state.role}입니다.`);
+      lines.push(`[목표] '${detail}'을 주제로 '${output.name}' 형식의 창작물을 만들어 주세요.`);
+      if (state.audience) lines.push(`[대상] 이 창작물을 볼 사람은 ${state.audience}입니다.`);
+      if (state.tone) lines.push(`[느낌] 전체를 ${state.tone} 표현해 주세요.`);
+      if (state.format) lines.push(`[형식] ${state.format}.`);
+      if (state.example && state.example !== '예시 없이 만들기') lines.push(`[참고 예시] ${state.example}. 주제에 맞게 바꾸어 주세요.`);
+      if (output.mode === 'text') lines.push('[확인] 어려운 말은 쉽게 풀어 쓰고, 사실을 꾸며내지 마세요. 확실하지 않은 내용은 확실하지 않다고 알려 주세요.');
+      else lines.push('[확인] 실제 사람의 개인정보나 다른 사람을 놀리는 내용은 넣지 말아 주세요. 특정 작가의 작품을 그대로 따라 하지 말고 새로운 모습으로 만들어 주세요.');
+      return lines.join('\n');
+    }
+
+    function update() {
+      const prompt = buildPrompt();
+      const preview = byId('promptPreview');
+      if (prompt) preview.textContent = prompt;
+      else preview.innerHTML = '<span class="prompt-placeholder">먼저 만들 창작물과 자세한 내용을 골라 주세요.</span>';
+
+      const ingredientOn = {
+        task: Boolean(state.output && getDetail()),
+        context: Boolean(state.topic || state.audience),
+        persona: Boolean(state.role),
+        example: Boolean(state.example && state.example !== '예시 없이 만들기'),
+        format: Boolean(state.format),
+        tone: Boolean(state.tone)
+      };
+      document.querySelectorAll('#ingredientBadges span').forEach(badge => badge.classList.toggle('on', ingredientOn[badge.dataset.part]));
+
+      const mainParts = [state.output, getDetail()];
+      const done = [Boolean(state.output), Boolean(getDetail()), Boolean(state.role), Boolean(state.audience), Boolean(state.tone && state.format)];
+      const count = done.filter(Boolean).length;
+      byId('progressBar').style.width = `${count * 20}%`;
+      byId('progressText').textContent = `창작 재료 ${count} / 5`;
+
+      const safe = [...document.querySelectorAll('.safetyCheck')].every(box => box.checked);
+      byId('copyButton').disabled = !(mainParts.every(Boolean) && safe);
+    }
+
+    async function copyPrompt() {
+      const prompt = buildPrompt();
+      if (!prompt) return;
+      let copied = false;
+      try {
+        await navigator.clipboard.writeText(prompt);
+        copied = true;
+      } catch (error) {
+        const area = document.createElement('textarea');
+        area.value = prompt;
+        area.style.position = 'fixed'; area.style.opacity = '0';
+        document.body.appendChild(area); area.select();
+        copied = document.execCommand('copy');
+        area.remove();
+      }
+      const message = byId('statusMessage');
+      message.className = `status ${copied ? 'good' : 'warn'}`;
+      message.textContent = copied ? '✅ 복사했어요! 학교에서 허용한 생성형 AI에 붙여넣으세요.' : '복사하지 못했어요. 프롬프트 상자를 길게 눌러 직접 복사해 주세요.';
+    }
+
+    function resetAll() {
+      Object.keys(state).forEach(key => state[key] = '');
+      byId('customDetail').value = '';
+      document.querySelectorAll('#lesson4 [aria-pressed="true"]').forEach(button => button.setAttribute('aria-pressed', 'false'));
+      document.querySelectorAll('.safetyCheck').forEach(box => box.checked = false);
+      renderDetails(); renderOptionsForOutput();
+      byId('statusMessage').textContent = '';
+      update();
+      byId('step1').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    byId('customDetail').addEventListener('input', update);
+    document.querySelectorAll('.safetyCheck').forEach(box => box.addEventListener('change', update));
+    byId('copyButton').addEventListener('click', copyPrompt);
+    byId('resetButton').addEventListener('click', resetAll);
+
+    initLessons();
+    renderOutputChoices();
+    renderTopics();
+    renderOptionsForOutput();
+    update();
+  </script>
+</body>
+</html>
