@@ -109,6 +109,8 @@
       width: 100%; min-height: 76px; margin-top: 9px; resize: vertical;
       padding: 12px 14px; color: var(--ink); border: 2px solid var(--line); border-radius: 14px; background: #fbfcfe;
     }
+    .custom-topic-box { margin-top: 12px; padding: 15px; border: 2px dashed #a99ae0; border-radius: 16px; background: #f8f5ff; }
+    .custom-topic-box input { width: 100%; min-height: 50px; margin-top: 8px; padding: 10px 13px; color: var(--ink); border: 2px solid var(--line); border-radius: 12px; background: white; font: inherit; }
 
     .preview-card { background: linear-gradient(145deg, #684bc8, #8063dd); color: white; border: 0; }
     .preview-card h2, .preview-card .guide { color: white; }
@@ -339,6 +341,10 @@
       <div class="field">
         <div class="field-head"><span class="field-label">① 큰 주제</span><span class="ingredient">맥락 context</span></div>
         <div class="chips" id="topicChoices" role="group" aria-label="큰 주제 선택"></div>
+        <div class="custom-topic-box" id="customTopicBox" hidden>
+          <label for="customTopicInput" class="field-label">✏️ 내가 정한 큰 주제</label>
+          <input type="text" id="customTopicInput" maxlength="60" placeholder="예: 우리 고장의 문화유산">
+        </div>
       </div>
       <div class="field">
         <div class="field-head"><span class="field-label">② 자세한 내용</span><span class="ingredient">명령 task</span></div>
@@ -410,28 +416,111 @@
       { id: 'explain', icon: '💡', name: '설명글', desc: '쉽고 정확한 정보', mode: 'text', role: ['친절한 초등학교 선생님', '호기심 많은 과학 해설가', '쉽게 설명하는 어린이 기자'], formats: ['핵심 3가지를 목록으로', '제목과 짧은 문단으로', '예시를 넣어 500자 안팎으로'] },
       { id: 'poem', icon: '🎵', name: '시·노래', desc: '리듬이 있는 글', mode: 'text', role: ['재미있는 어린이 시인', '말놀이를 잘하는 작사가', '자연을 사랑하는 시인'], formats: ['4연으로 된 짧은 시', '후렴이 반복되는 노래', '8줄 안팎의 동시'] },
       { id: 'ideas', icon: '🧩', name: '아이디어', desc: '문제 해결 방법', mode: 'text', role: ['창의적인 발명가', '생활 문제 해결 전문가', '아이디어를 잘 내는 친구'], formats: ['실천 방법 5가지 목록', '문제·원인·해결 순서', '준비물과 방법을 표처럼 정리'] },
+      { id: 'diary', icon: '📔', name: '일기', desc: '하루의 경험과 마음', mode: 'text', role: ['마음을 잘 표현하는 글쓰기 선생님', '하루를 생생하게 들려주는 작가', '관찰을 잘하는 어린이 작가'], formats: ['날짜·날씨·있었던 일·느낀 점 순서', '제목과 3개 문단', '10문장 안팎의 일기'] },
+      { id: 'letter', icon: '💌', name: '편지', desc: '마음을 전하는 글', mode: 'text', role: ['따뜻한 편지를 쓰는 작가', '마음을 잘 전하는 글쓰기 선생님', '친절한 편지 도우미'], formats: ['받는 사람·인사·전할 말·보내는 사람 순서', '짧은 편지 한 장', '마음을 담은 3개 문단'] },
+      { id: 'quiz', icon: '❓', name: '퀴즈', desc: '배운 내용을 문제로', mode: 'text', role: ['재미있는 퀴즈 진행자', '초등학교 선생님', '수수께끼를 잘 만드는 작가'], formats: ['객관식 5문제와 정답', '참·거짓 문제 5개와 설명', '쉬운 문제부터 어려운 문제까지 6개'] },
+      { id: 'roleplay', icon: '🎭', name: '역할극', desc: '친구들과 읽는 대본', mode: 'text', role: ['어린이 연극 대본 작가', '재미있는 장면을 만드는 작가', '대화를 생생하게 쓰는 작가'], formats: ['등장인물 3명과 5분 분량의 대본', '장면 설명과 인물별 대사', '시작·문제·해결의 세 장면'] },
       { id: 'scene', icon: '🖼️', name: '장면 그림', desc: '이야기가 보이는 한 장면', mode: 'image', role: ['상상력이 풍부한 그림 작가', '장면을 생생하게 표현하는 일러스트레이터', '색을 잘 쓰는 어린이책 화가'], formats: ['가로로 넓은 한 장면', '세로로 긴 한 장면', '주인공이 크게 보이는 정사각형'] },
       { id: 'poster', icon: '📣', name: '포스터', desc: '생각을 알리는 이미지', mode: 'image', role: ['메시지를 잘 보여주는 포스터 디자이너', '어린이 눈높이의 시각 디자이너', '환경 캠페인 디자이너'], formats: ['세로형 포스터, 글자는 넣지 않기', '중앙 그림이 큰 포스터', '상징 3개가 잘 보이는 포스터'] },
-      { id: 'character', icon: '🦸', name: '캐릭터', desc: '나만의 주인공 디자인', mode: 'image', role: ['개성 있는 캐릭터 디자이너', '귀여운 동물 캐릭터 작가', '판타지 주인공을 만드는 디자이너'], formats: ['전신이 보이는 정면 모습', '세 가지 표정이 함께 보이는 구성', '대표 물건과 함께 있는 정사각형'] }
+      { id: 'character', icon: '🦸', name: '캐릭터', desc: '나만의 주인공 디자인', mode: 'image', role: ['개성 있는 캐릭터 디자이너', '귀여운 동물 캐릭터 작가', '판타지 주인공을 만드는 디자이너'], formats: ['전신이 보이는 정면 모습', '세 가지 표정이 함께 보이는 구성', '대표 물건과 함께 있는 정사각형'] },
+      { id: 'comic', icon: '💬', name: '4컷 만화', desc: '네 장면으로 된 이야기', mode: 'image', role: ['어린이 만화가', '표정을 재미있게 그리는 작가', '이야기를 그림으로 만드는 작가'], formats: ['말풍선 없이 4칸 만화', '시작·사건·위기·결말의 4칸', '표정과 행동이 잘 보이는 가로형 4칸'] },
+      { id: 'invention', icon: '⚙️', name: '상상 발명품', desc: '새로운 물건 디자인', mode: 'image', role: ['창의적인 발명품 디자이너', '미래 물건을 그리는 그림 작가', '어린이 발명가'], formats: ['발명품 전체가 보이는 정면 그림', '사용하는 모습과 발명품을 함께 배치', '세 가지 주요 부분이 잘 보이는 그림'] },
+      { id: 'game', icon: '🎮', name: '게임', desc: '직접 실행하는 간단한 게임', mode: 'game', role: ['초등학생을 위한 웹게임 개발자', '쉽게 코딩을 알려 주는 선생님', '교과 내용을 게임으로 만드는 기획자'], formats: ['HTML 파일 하나로 실행되는 간단한 게임', '시작 안내·점수·다시 시작 버튼이 있는 게임', '키보드 또는 마우스 한 가지로 조작하는 게임'] },
+      { id: 'video', icon: '🎬', name: '짧은 영상', desc: '5~8초 한 장면 영상', mode: 'video', role: ['짧은 영상을 만드는 감독', '어린이 애니메이션 감독', '움직임을 자세히 설명하는 영상 기획자'], formats: ['5초 동안 이어지는 한 장면', '6초 동안 카메라가 천천히 움직이는 한 장면', '8초 안에 시작과 끝이 보이는 한 장면'] }
     ];
 
     const topics = {
-      environment: { label: '🌍 환경', details: ['바다 쓰레기를 줄이는 영웅의 활약', '우리 반에서 실천할 수 있는 분리배출', '사라진 꿀벌을 다시 돌아오게 하는 방법', '전기를 아끼는 똑똑한 하루'] },
-      space: { label: '🚀 우주', details: ['처음 발견한 무지개빛 행성', '달에 세운 신기한 학교', '지구를 찾아온 친절한 외계인', '우주 쓰레기를 청소하는 로봇'] },
-      animals: { label: '🐾 동물', details: ['사람의 말을 알아듣는 고양이', '길을 잃은 아기 바다거북', '숲속 동물들의 비밀 운동회', '멸종 위기 동물을 지키는 방법'] },
-      school: { label: '🏫 학교', details: ['친구와 사이좋게 지내는 방법', '우리 학교를 더 즐겁게 만드는 아이디어', '교실에서 벌어진 신기한 사건', '새로 온 친구를 돕는 따뜻한 하루'] },
-      fantasy: { label: '🏰 상상·모험', details: ['구름 위에 숨겨진 마법 도서관', '시간을 되돌리는 신기한 시계', '용과 친구가 된 작은 기사', '꿈속 도시를 여행하는 탐험대'] },
-      science: { label: '🔬 과학', details: ['물이 얼음과 수증기로 변하는 과정', '식물이 햇빛을 먹고 자라는 까닭', '생활을 돕는 미래 로봇', '화산이 폭발하는 까닭'] },
-      culture: { label: '🎎 문화', details: ['우리나라 전통 놀이의 즐거움', '옛날과 오늘날의 학교 비교', '세계 여러 나라의 특별한 음식', '우리 동네의 자랑스러운 장소'] },
-      heart: { label: '💛 마음·우정', details: ['용기 내어 사과하는 방법', '속상한 친구의 마음을 알아주는 말', '서로 다름을 존중하는 교실', '작은 친절이 만든 큰 변화'] }
+      korean: { name: '국어', label: '📖 국어', details: ['이야기 속 인물의 마음과 행동', '중심 생각을 찾는 방법', '속담을 알맞게 사용하는 방법', '경험한 일을 자세히 표현하는 글'] },
+      math: { name: '수학', label: '➗ 수학', details: ['곱셈과 나눗셈이 필요한 생활 장면', '분수와 소수의 뜻', '여러 가지 도형의 특징', '길이·시간·무게를 재는 방법'] },
+      social: { name: '사회', label: '🗺️ 사회', details: ['우리 고장의 모습과 자랑거리', '생활을 돕는 공공기관', '우리나라의 문화유산', '서로 다른 지역의 생활 모습'] },
+      science: { name: '과학', label: '🔬 과학', details: ['물질의 세 가지 상태', '식물의 한살이', '태양계의 행성과 특징', '동물이 사는 곳과 생활 모습'] },
+      ethics: { name: '도덕', label: '💚 도덕', details: ['친구를 존중하고 배려하는 방법', '갈등을 평화롭게 해결하는 방법', '약속과 규칙을 지켜야 하는 까닭', '온라인에서 지켜야 할 예절'] },
+      pe: { name: '체육', label: '⚽ 체육', details: ['운동할 때 지켜야 할 안전 수칙', '규칙을 지키는 공정한 경기', '건강한 생활 습관', '친구와 협동하는 놀이 방법'] },
+      music: { name: '음악', label: '🎵 음악', details: ['빠르기와 셈여림의 변화', '여러 가지 악기의 소리', '우리나라 전통 음악과 악기', '노래의 느낌을 살려 부르는 방법'] },
+      art: { name: '미술', label: '🎨 미술', details: ['색을 섞어 새로운 색 만들기', '여러 재료로 질감 표현하기', '생활 속 아름다운 디자인', '작품을 보고 느낌과 생각 말하기'] },
+      english: { name: '영어', label: '🔤 영어', details: ['영어로 인사하고 자기소개하기', '가족·학교·음식·날씨 기초 낱말', '좋아하는 것과 할 수 있는 것 말하기', '생활 속 짧은 영어 질문과 대답'] },
+      practical: { name: '실과', label: '🛠️ 실과', details: ['정보를 안전하고 바르게 사용하는 방법', '명령을 순서대로 나타내는 간단한 코딩', '생활 속 불편함을 해결하는 발명 과정', '건강하고 지속 가능한 생활 실천'] }
+    };
+
+    const activityDetails = {
+      quiz: {
+        korean: ['속담의 뜻을 맞히는 객관식 퀴즈', '맞춤법이 알맞은 문장을 찾는 퀴즈', '글의 중심 생각을 찾는 퀴즈'],
+        math: ['곱셈과 나눗셈 생활 문제 퀴즈', '분수의 크기를 비교하는 퀴즈', '도형의 특징을 맞히는 퀴즈'],
+        social: ['우리 고장과 공공기관 퀴즈', '지도 기호를 맞히는 퀴즈', '우리나라 문화유산 퀴즈'],
+        science: ['물질의 상태 변화 퀴즈', '식물의 한살이 순서 퀴즈', '태양계 행성 특징 퀴즈'],
+        ethics: ['배려하는 행동을 고르는 퀴즈', '갈등 해결 방법 퀴즈', '온라인 예절 참·거짓 퀴즈'],
+        pe: ['운동 안전 수칙 퀴즈', '공정한 경기 규칙 퀴즈', '건강한 생활 습관 퀴즈'],
+        music: ['악기 소리를 맞히는 퀴즈', '빠르기와 셈여림 퀴즈', '우리나라 전통 악기 퀴즈'],
+        art: ['색의 혼합 퀴즈', '미술 재료와 표현 방법 퀴즈', '생활 속 디자인 퀴즈'],
+        english: ['영어 낱말과 그림을 연결하는 퀴즈', '알맞은 인사말을 고르는 퀴즈', '짧은 영어 문장을 완성하는 퀴즈'],
+        practical: ['개인정보 보호와 정보 윤리 퀴즈', '코딩 명령 순서 맞추기 퀴즈', '발명 과정과 생활 문제 해결 퀴즈']
+      },
+      roleplay: {
+        korean: ['이야기 속 두 인물의 마음을 표현하는 역할극', '책을 읽고 생각을 나누는 역할극', '바른 말을 사용해 대화하는 역할극'],
+        math: ['시장에서 물건값을 계산하는 역할극', '도형 나라를 탐험하는 역할극', '시간표를 보고 약속 시간을 정하는 역할극'],
+        social: ['우리 고장 문화유산 안내 역할극', '주민 회의에서 문제를 해결하는 역할극', '옛날과 오늘날의 생활을 비교하는 역할극'],
+        science: ['물방울의 상태 변화 여행 역할극', '식물의 한살이를 보여 주는 역할극', '태양계 행성들이 소개하는 역할극'],
+        ethics: ['다툰 친구들이 화해하는 역할극', '서로 다른 의견을 존중하는 역할극', '온라인에서 바르게 대화하는 역할극'],
+        pe: ['경기 규칙을 지키는 역할극', '운동 중 다친 친구를 돕는 역할극', '팀원이 협동하는 역할극'],
+        music: ['여러 악기가 자신을 소개하는 역할극', '작은 음악회를 준비하는 역할극', '전통 음악을 소개하는 역할극'],
+        art: ['미술관 작품 안내 역할극', '색깔들이 만나 새 색을 만드는 역할극', '재활용 재료로 작품을 만드는 역할극'],
+        english: ['친구와 영어로 인사하고 자기소개하는 역할극', '가게에서 원하는 물건을 영어로 말하는 역할극', '좋아하는 활동을 영어로 묻고 답하는 역할극'],
+        practical: ['발명 모둠이 생활 문제를 해결하는 역할극', '안전한 인터넷 사용 방법을 알려 주는 역할극', '요리 순서와 안전 수칙을 확인하는 역할극']
+      },
+      poster: {
+        korean: ['바른 말 사용을 알리는 포스터', '독서의 즐거움을 알리는 포스터', '우리말 맞춤법을 알려 주는 포스터'],
+        math: ['생활 속 수학을 소개하는 포스터', '여러 가지 도형의 특징 포스터', '시간을 잘 사용하는 방법 포스터'],
+        social: ['우리 고장의 자랑거리 포스터', '문화유산 보호 포스터', '공공장소 질서 지키기 포스터'],
+        science: ['물 절약 실천 포스터', '생물 다양성 보호 포스터', '태양계 행성 소개 포스터'],
+        ethics: ['친구 존중과 배려 포스터', '학교폭력 예방 포스터', '온라인 예절 실천 포스터'],
+        pe: ['운동 전 준비운동 포스터', '안전한 체육 활동 포스터', '건강한 생활 습관 포스터'],
+        music: ['우리 반 음악회 안내 포스터', '전통 악기 소개 포스터', '생활 속 소음 줄이기 포스터'],
+        art: ['우리 반 미술 전시회 포스터', '생활 속 색과 디자인 포스터', '재활용 미술 작품 포스터'],
+        english: ['교실에서 자주 쓰는 영어 표현 포스터', '그림과 함께 보는 영어 낱말 포스터', '영어로 자기소개하는 방법 포스터'],
+        practical: ['개인정보를 안전하게 지키는 포스터', '아이디어에서 발명품이 되는 과정 포스터', '에너지와 자원을 아끼는 생활 포스터']
+      },
+      invention: {
+        korean: ['책 읽기를 도와주는 똑똑한 책갈피', '이야기를 들려주는 상상 기계', '맞춤법을 알려 주는 연필'],
+        math: ['길이를 한 번에 재는 필통', '계산 방법을 알려 주는 책상', '도형을 자동으로 만드는 상상 도구'],
+        social: ['우리 고장을 안내하는 지도 로봇', '문화유산을 안전하게 지키는 장치', '길을 잃은 사람을 돕는 표지판'],
+        science: ['물을 아껴 주는 수도꼭지', '식물이 필요한 것을 알려 주는 화분', '깨끗한 에너지를 만드는 상상 기계'],
+        ethics: ['친구의 기분을 알려 주는 배려 팔찌', '바른 인터넷 사용을 돕는 로봇', '다툼을 평화롭게 해결하는 대화 기계'],
+        pe: ['운동할 때 안전을 지켜 주는 신발', '바른 자세를 알려 주는 의자', '친구와 함께 운동하는 협동 기구'],
+        music: ['누구나 쉽게 연주하는 상상 악기', '소음을 아름다운 소리로 바꾸는 기계', '기분에 맞는 음악을 만드는 모자'],
+        art: ['색을 자동으로 섞어 주는 붓', '재활용품을 작품으로 만드는 기계', '생각한 장면을 그려 주는 상상 도구'],
+        english: ['영어 단어를 재미있게 외우는 카드 기계', '영어 발음을 연습하도록 돕는 마이크', '상황에 맞는 영어 표현을 알려 주는 배지'],
+        practical: ['개인정보를 안전하게 지켜 주는 장치', '생활 속 불편함을 해결하는 새로운 발명품', '순서대로 움직이며 일을 돕는 코딩 로봇']
+      }
+    };
+
+    const fixedActivityDetails = {
+      game: [
+        '테트리스처럼 블록을 맞추는 게임',
+        '정답이나 대상을 빠르게 누르는 클릭 게임',
+        '크롬 공룡게임처럼 장애물을 피하는 게임',
+        '교과 문제를 풀어 탈출하는 방탈출 게임',
+        '질문에 답해 유형을 알아보는 MBTI 맞추기 게임',
+        '카드를 뒤집어 같은 짝을 찾는 기억력 게임',
+        '목적지까지 길을 찾는 미로 게임'
+      ],
+      video: [
+        '교과 개념이 한눈에 보이는 5초 영상',
+        '주인공이 한 가지 행동을 하는 6초 영상',
+        '과학 현상의 변화를 보여 주는 8초 영상',
+        '안전 수칙을 알리는 5초 캠페인 영상',
+        '그림 속 인물이나 사물이 움직이는 6초 영상',
+        '과거 또는 미래의 한 장면을 보여 주는 8초 영상'
+      ]
     };
 
     const audiences = ['초등학교 저학년 동생', '우리 반 친구들', '우리 가족', '이 주제를 처음 배우는 사람', '어린이와 어른 모두'];
     const tones = {
       text: ['쉽고 친절하게', '재미있고 신나게', '따뜻하고 감동적으로', '궁금해지도록 신비롭게', '정확하고 차분하게'],
-      image: ['밝고 따뜻한 분위기', '신비롭고 환상적인 분위기', '귀엽고 유쾌한 분위기', '힘차고 용감한 분위기', '차분하고 평화로운 분위기']
+      image: ['밝고 따뜻한 분위기', '신비롭고 환상적인 분위기', '귀엽고 유쾌한 분위기', '힘차고 용감한 분위기', '차분하고 평화로운 분위기'],
+      game: ['쉽고 재미있게', '빠르고 신나게', '차분히 생각하며 풀 수 있게', '귀엽고 밝은 느낌으로', '도전하고 싶어지는 느낌으로'],
+      video: ['밝고 따뜻한 분위기', '신비롭고 환상적인 분위기', '귀엽고 유쾌한 분위기', '힘차고 빠른 분위기', '차분하고 아름다운 분위기']
     };
-    const state = { output: '', topic: '', detail: '', role: '', audience: '', tone: '', format: '', example: '' };
+    const state = { output: '', topic: '', customTopic: '', detail: '', role: '', audience: '', tone: '', format: '', example: '' };
     const byId = id => document.getElementById(id);
     const learned = { meaning: false, compare: false };
     const elements = [
@@ -677,22 +766,31 @@
     function renderTopics() {
       const box = byId('topicChoices');
       Object.entries(topics).forEach(([key, item]) => box.appendChild(makeButton(item.label, key, 'topic')));
-      const random = document.createElement('button');
-      random.type = 'button';
-      random.className = 'chip surprise';
-      random.textContent = '🎲 알아서 골라 줘';
-      random.addEventListener('click', randomChoice);
-      box.appendChild(random);
+      box.appendChild(makeButton('✏️ 직접 입력 선택', 'custom', 'topic', 'surprise'));
     }
 
     function renderDetails() {
       const box = byId('detailChoices');
       box.innerHTML = '';
+      const fixedDetails = fixedActivityDetails[state.output];
+      if (fixedDetails) {
+        fixedDetails.forEach(text => box.appendChild(makeButton(text, text, 'detail')));
+        return;
+      }
       if (!state.topic) {
         box.innerHTML = '<span class="prompt-placeholder">먼저 큰 주제를 골라 주세요.</span>';
         return;
       }
-      topics[state.topic].details.forEach(text => box.appendChild(makeButton(text, text, 'detail')));
+      if (state.topic === 'custom') {
+        const customTopic = byId('customTopicInput').value.trim();
+        const guide = document.createElement('span');
+        guide.className = 'prompt-placeholder';
+        guide.textContent = customTopic ? `‘${customTopic}’에서 만들고 싶은 자세한 내용을 아래에 써 보세요.` : '위의 입력칸에 큰 주제를 써 주세요.';
+        box.appendChild(guide);
+        return;
+      }
+      const details = activityDetails[state.output]?.[state.topic] || topics[state.topic].details;
+      details.forEach(text => box.appendChild(makeButton(text, text, 'detail')));
     }
 
     function renderOptionsForOutput() {
@@ -701,7 +799,13 @@
       renderButtonList('audienceChoices', audiences, 'audience');
       renderButtonList('toneChoices', selected ? tones[selected.mode] : ['먼저 1단계에서 창작물을 골라 주세요'], 'tone', !selected);
       renderButtonList('formatChoices', selected ? selected.formats : ['먼저 1단계에서 창작물을 골라 주세요'], 'format', !selected);
-      renderButtonList('exampleChoices', selected ? (selected.mode === 'image' ? ['예시 없이 만들기', '예: 큰 주인공을 가운데, 작은 배경을 뒤쪽에 배치'] : ['예시 없이 만들기', '예: “알고 있나요?”라는 질문으로 시작', '예: “어느 날, 뜻밖의 일이 일어났어요.”처럼 시작']) : ['먼저 창작물을 골라 주세요'], 'example', !selected);
+      const examplesByMode = {
+        text: ['예시 없이 만들기', '예: “알고 있나요?”라는 질문으로 시작', '예: “어느 날, 뜻밖의 일이 일어났어요.”처럼 시작'],
+        image: ['예시 없이 만들기', '예: 큰 주인공을 가운데, 작은 배경을 뒤쪽에 배치'],
+        game: ['예시 없이 만들기', '예: 화면을 누르면 1점씩 올라가고 30초 뒤에 끝나게 만들기', '예: 정답을 맞히면 다음 방으로 이동하게 만들기'],
+        video: ['예시 없이 만들기', '예: 나뭇잎이 바람에 흔들리고 카메라가 천천히 가까워지기', '예: 얼음이 녹아 물이 되는 모습을 한 장면으로 보여 주기']
+      };
+      renderButtonList('exampleChoices', selected ? examplesByMode[selected.mode] : ['먼저 창작물을 골라 주세요'], 'example', !selected);
       document.querySelectorAll('[data-group="audience"]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.value === state.audience)));
     }
 
@@ -722,25 +826,29 @@
         button.setAttribute('aria-pressed', String(button.dataset.value === state[group]));
       });
       if (group === 'output') {
-        state.role = ''; state.tone = ''; state.format = ''; state.example = '';
+        state.detail = ''; state.role = ''; state.tone = ''; state.format = ''; state.example = '';
+        byId('customDetail').value = '';
         renderOptionsForOutput();
+        renderDetails();
       }
-      if (group === 'topic') { state.detail = ''; renderDetails(); }
+      if (group === 'topic') {
+        state.detail = '';
+        byId('customDetail').value = '';
+        const isCustom = value === 'custom';
+        byId('customTopicBox').hidden = !isCustom;
+        renderDetails();
+        if (isCustom) byId('customTopicInput').focus();
+      }
+      if (group === 'detail') byId('customDetail').value = '';
       update();
     }
 
-    function randomChoice() {
-      const topicKeys = Object.keys(topics);
-      state.topic = topicKeys[Math.floor(Math.random() * topicKeys.length)];
-      renderDetails();
-      const detailList = topics[state.topic].details;
-      state.detail = detailList[Math.floor(Math.random() * detailList.length)];
-      document.querySelectorAll('[data-group="topic"]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.value === state.topic)));
-      document.querySelectorAll('[data-group="detail"]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.value === state.detail)));
-      update();
+    function getTopicName() {
+      if (state.topic === 'custom') return byId('customTopicInput').value.trim();
+      return topics[state.topic]?.name || '';
     }
 
-    function getDetail() { return byId('customDetail').value.trim() || state.detail; }
+    function getDetail() { return byId('customDetail').value.trim() || state.detail || (state.topic === 'custom' ? getTopicName() : ''); }
 
     function buildPrompt() {
       const output = outputTypes.find(item => item.id === state.output);
@@ -748,13 +856,22 @@
       if (!output || !detail) return '';
       const lines = [];
       if (state.role) lines.push(`[역할] 당신은 ${state.role}입니다.`);
+      const topicName = getTopicName();
+      if (topicName && topicName !== detail) lines.push(`[큰 주제] ${topicName}.`);
       lines.push(`[목표] '${detail}'을 주제로 '${output.name}' 형식의 창작물을 만들어 주세요.`);
       if (state.audience) lines.push(`[대상] 이 창작물을 볼 사람은 ${state.audience}입니다.`);
       if (state.tone) lines.push(`[느낌] 전체를 ${state.tone} 표현해 주세요.`);
       if (state.format) lines.push(`[형식] ${state.format}.`);
       if (state.example && state.example !== '예시 없이 만들기') lines.push(`[참고 예시] ${state.example}. 주제에 맞게 바꾸어 주세요.`);
-      if (output.mode === 'text') lines.push('[확인] 어려운 말은 쉽게 풀어 쓰고, 사실을 꾸며내지 마세요. 확실하지 않은 내용은 확실하지 않다고 알려 주세요.');
-      else lines.push('[확인] 실제 사람의 개인정보나 다른 사람을 놀리는 내용은 넣지 말아 주세요. 특정 작가의 작품을 그대로 따라 하지 말고 새로운 모습으로 만들어 주세요.');
+      if (output.mode === 'text') {
+        lines.push('[확인] 어려운 말은 쉽게 풀어 쓰고, 사실을 꾸며내지 마세요. 확실하지 않은 내용은 확실하지 않다고 알려 주세요.');
+      } else if (output.mode === 'game') {
+        lines.push('[확인] 별도 설치 없이 웹브라우저에서 실행되는 HTML 파일 하나로 만들어 주세요. 조작 방법, 점수, 게임 종료, 다시 시작 기능을 넣고 초등학생이 쉽게 바꿀 수 있도록 설명해 주세요.');
+      } else if (output.mode === 'video') {
+        lines.push('[확인] 5~8초 안에 한 장면이 자연스럽게 이어지도록 주인공의 행동, 배경의 움직임, 카메라 움직임을 분명하게 설명해 주세요. 화면 안에 글자는 넣지 마세요.');
+      } else {
+        lines.push('[확인] 실제 사람의 개인정보나 다른 사람을 놀리는 내용은 넣지 말아 주세요. 특정 작가의 작품을 그대로 따라 하지 말고 새로운 모습으로 만들어 주세요.');
+      }
       return lines.join('\n');
     }
 
@@ -806,6 +923,8 @@
 
     function resetAll() {
       Object.keys(state).forEach(key => state[key] = '');
+      byId('customTopicInput').value = '';
+      byId('customTopicBox').hidden = true;
       byId('customDetail').value = '';
       document.querySelectorAll('#lesson4 [aria-pressed="true"]').forEach(button => button.setAttribute('aria-pressed', 'false'));
       document.querySelectorAll('.safetyCheck').forEach(box => box.checked = false);
@@ -815,7 +934,18 @@
       byId('step1').scrollIntoView({ behavior: 'smooth' });
     }
 
-    byId('customDetail').addEventListener('input', update);
+    byId('customDetail').addEventListener('input', () => {
+      if (byId('customDetail').value.trim()) {
+        state.detail = '';
+        document.querySelectorAll('[data-group="detail"]').forEach(button => button.setAttribute('aria-pressed', 'false'));
+      }
+      update();
+    });
+    byId('customTopicInput').addEventListener('input', () => {
+      state.customTopic = byId('customTopicInput').value.trim();
+      renderDetails();
+      update();
+    });
     document.querySelectorAll('.safetyCheck').forEach(box => box.addEventListener('change', update));
     byId('copyButton').addEventListener('click', copyPrompt);
     byId('resetButton').addEventListener('click', resetAll);
