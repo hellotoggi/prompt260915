@@ -34,9 +34,9 @@
       line-height: 1.7;
       font-size: 18px;
     }
-    button, textarea { font: inherit; }
+    button, input, textarea { font: inherit; }
     button { -webkit-tap-highlight-color: transparent; }
-    button:focus-visible, textarea:focus-visible {
+    button:focus-visible, input:focus-visible, textarea:focus-visible {
       outline: 4px solid rgba(38, 118, 217, .28);
       outline-offset: 2px;
     }
@@ -104,6 +104,7 @@
       border-color: #efb35d; color: #a75208; background: #fff7e9;
     }
     .custom-box { margin-top: 12px; }
+    .custom-box textarea::placeholder { color: #9299a5; opacity: 1; }
     .custom-box summary { cursor: pointer; color: var(--blue); font-weight: 800; }
     .custom-box textarea {
       width: 100%; min-height: 76px; margin-top: 9px; resize: vertical;
@@ -331,7 +332,7 @@
     <div id="lesson4" hidden tabindex="-1" aria-label="4단계 직접 만들기">
     <section class="card" id="step1">
       <div class="step-title"><span class="step-number">1</span><h2>무엇을 만들까요?</h2></div>
-      <p class="guide"><span class="required">필수</span> · 글 또는 이미지 창작물을 하나 고르세요.</p>
+      <p class="guide"><span class="required">필수</span> · 글, 이미지, 게임 또는 영상 창작물을 하나 고르세요.</p>
       <div class="choice-grid" id="outputChoices" role="group" aria-label="만들 창작물 선택"></div>
     </section>
 
@@ -351,6 +352,7 @@
         <div class="chips" id="detailChoices" role="group" aria-label="자세한 내용 선택"><span class="prompt-placeholder">먼저 큰 주제를 골라 주세요.</span></div>
         <div class="custom-box">
           <label for="customDetail" class="field-label">✏️ 내 생각 쓰기</label>
+          <p class="guide">자세한 내용을 고른 뒤 내 생각을 덧붙여도 좋아요. 고른 내용과 쓴 생각이 함께 프롬프트에 담겨요.</p>
           <textarea id="customDetail" maxlength="1000" placeholder="예: 달에서 토끼와 축구하는 이야기"></textarea>
         </div>
       </div>
@@ -370,6 +372,11 @@
       <div class="field">
         <div class="field-head"><span class="field-label">③ 어떤 느낌으로 만들까요?</span><span class="ingredient">어조 tone</span></div>
         <div class="chips" id="toneChoices" role="group" aria-label="느낌 선택"></div>
+        <div class="custom-box">
+          <label for="customTone" class="field-label">✏️ 내가 원하는 느낌 더하기</label>
+          <p class="guide">위에서 느낌을 고르고 내 생각을 더하거나, 원하는 느낌을 직접 써 보세요. 게임은 화면과 버튼, 색, 배경, 소리도 적을 수 있어요.</p>
+          <textarea id="customTone" maxlength="1000" placeholder="예: 밝고 따뜻한 느낌으로 만들고 싶어요. 파스텔 색과 귀여운 모습을 담아 주세요."></textarea>
+        </div>
       </div>
       <div class="field">
         <div class="field-head"><span class="field-label">④ 어떤 모양과 길이로 만들까요?</span><span class="ingredient">포맷 format</span></div>
@@ -520,7 +527,7 @@
       game: ['쉽고 재미있게', '빠르고 신나게', '차분히 생각하며 풀 수 있게', '귀엽고 밝은 느낌으로', '도전하고 싶어지는 느낌으로'],
       video: ['밝고 따뜻한 분위기', '신비롭고 환상적인 분위기', '귀엽고 유쾌한 분위기', '힘차고 빠른 분위기', '차분하고 아름다운 분위기']
     };
-    const state = { output: '', topic: '', customTopic: '', detail: '', role: '', audience: '', tone: '', format: '', example: '' };
+    const state = { output: '', topic: '', customTopic: '', detailTopic: '', detail: '', role: '', audience: '', tone: '', format: '', example: '' };
     const byId = id => document.getElementById(id);
     const learned = { meaning: false, compare: false };
     const elements = [
@@ -782,11 +789,11 @@
         return;
       }
       if (state.topic === 'custom') {
-        const customTopic = byId('customTopicInput').value.trim();
-        const guide = document.createElement('span');
-        guide.className = 'prompt-placeholder';
-        guide.textContent = customTopic ? `‘${customTopic}’에서 만들고 싶은 자세한 내용을 아래에 써 보세요.` : '위의 입력칸에 큰 주제를 써 주세요.';
-        box.appendChild(guide);
+        const details = state.detailTopic
+          ? (activityDetails[state.output]?.[state.detailTopic] || topics[state.detailTopic].details)
+          : ['내가 경험한 일과 느낀 점', '궁금한 사실과 알고 싶은 점', '상상한 인물과 새로운 사건', '문제를 해결하는 방법'];
+        details.forEach(text => box.appendChild(makeButton(text, text, 'detail')));
+        box.querySelectorAll('button').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.value === state.detail)));
         return;
       }
       const details = activityDetails[state.output]?.[state.topic] || topics[state.topic].details;
@@ -795,6 +802,12 @@
 
     function renderOptionsForOutput() {
       const selected = outputTypes.find(item => item.id === state.output);
+      byId('customDetail').placeholder = state.output === 'game'
+        ? '게임의 원리와 규칙을 적어보세요. 예: 블록으로 가로줄을 채우면 사라져요. 한 줄에 10점, 맨 위까지 쌓이면 끝나요.'
+        : '예: 달에서 토끼와 축구하는 이야기';
+      byId('customTone').placeholder = state.output === 'game'
+        ? '예: 반짝이는 우주 배경에 알록달록한 블록을 넣고, 위쪽에는 점수판, 아래쪽에는 시작·다시 시작 버튼을 넣어 주세요. 성공하면 경쾌한 소리가 나면 좋겠어요.'
+        : '예: 밝고 따뜻한 느낌으로 만들고 싶어요. 파스텔 색과 귀여운 모습을 담아 주세요.';
       renderButtonList('roleChoices', selected ? selected.role : ['먼저 1단계에서 창작물을 골라 주세요'], 'role', !selected);
       renderButtonList('audienceChoices', audiences, 'audience');
       renderButtonList('toneChoices', selected ? tones[selected.mode] : ['먼저 1단계에서 창작물을 골라 주세요'], 'tone', !selected);
@@ -828,18 +841,21 @@
       if (group === 'output') {
         state.detail = ''; state.role = ''; state.tone = ''; state.format = ''; state.example = '';
         byId('customDetail').value = '';
+        byId('customTone').value = '';
         renderOptionsForOutput();
         renderDetails();
       }
       if (group === 'topic') {
-        state.detail = '';
-        byId('customDetail').value = '';
         const isCustom = value === 'custom';
+        if (!isCustom) {
+          state.detailTopic = value;
+          state.detail = '';
+        }
         byId('customTopicBox').hidden = !isCustom;
         renderDetails();
+        document.querySelectorAll('[data-group="detail"]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.value === state.detail)));
         if (isCustom) byId('customTopicInput').focus();
       }
-      if (group === 'detail') byId('customDetail').value = '';
       update();
     }
 
@@ -848,7 +864,7 @@
       return topics[state.topic]?.name || '';
     }
 
-    function getDetail() { return byId('customDetail').value.trim() || state.detail || (state.topic === 'custom' ? getTopicName() : ''); }
+    function getDetail() { return state.detail || byId('customDetail').value.trim() || (state.topic === 'custom' ? getTopicName() : ''); }
 
     function buildPrompt() {
       const output = outputTypes.find(item => item.id === state.output);
@@ -859,8 +875,12 @@
       const topicName = getTopicName();
       if (topicName && topicName !== detail) lines.push(`[큰 주제] ${topicName}.`);
       lines.push(`[목표] '${detail}'을 주제로 '${output.name}' 형식의 창작물을 만들어 주세요.`);
+      const extraThought = byId('customDetail').value.trim();
+      if (extraThought && extraThought !== detail) lines.push(`[내 생각] ${extraThought}`);
       if (state.audience) lines.push(`[대상] 이 창작물을 볼 사람은 ${state.audience}입니다.`);
       if (state.tone) lines.push(`[느낌] 전체를 ${state.tone} 표현해 주세요.`);
+      const customTone = byId('customTone').value.trim();
+      if (customTone) lines.push(`[내가 원하는 느낌·표현] ${customTone}`);
       if (state.format) lines.push(`[형식] ${state.format}.`);
       if (state.example && state.example !== '예시 없이 만들기') lines.push(`[참고 예시] ${state.example}. 주제에 맞게 바꾸어 주세요.`);
       if (output.mode === 'text') {
@@ -887,12 +907,12 @@
         persona: Boolean(state.role),
         example: Boolean(state.example && state.example !== '예시 없이 만들기'),
         format: Boolean(state.format),
-        tone: Boolean(state.tone)
+        tone: Boolean(state.tone || byId('customTone').value.trim())
       };
       document.querySelectorAll('#ingredientBadges span').forEach(badge => badge.classList.toggle('on', ingredientOn[badge.dataset.part]));
 
       const mainParts = [state.output, getDetail()];
-      const done = [Boolean(state.output), Boolean(getDetail()), Boolean(state.role), Boolean(state.audience), Boolean(state.tone && state.format)];
+      const done = [Boolean(state.output), Boolean(getDetail()), Boolean(state.role), Boolean(state.audience), Boolean((state.tone || byId('customTone').value.trim()) && state.format)];
       const count = done.filter(Boolean).length;
       byId('progressBar').style.width = `${count * 20}%`;
       byId('progressText').textContent = `창작 재료 ${count} / 5`;
@@ -926,6 +946,7 @@
       byId('customTopicInput').value = '';
       byId('customTopicBox').hidden = true;
       byId('customDetail').value = '';
+      byId('customTone').value = '';
       document.querySelectorAll('#lesson4 [aria-pressed="true"]').forEach(button => button.setAttribute('aria-pressed', 'false'));
       document.querySelectorAll('.safetyCheck').forEach(box => box.checked = false);
       renderDetails(); renderOptionsForOutput();
@@ -934,16 +955,10 @@
       byId('step1').scrollIntoView({ behavior: 'smooth' });
     }
 
-    byId('customDetail').addEventListener('input', () => {
-      if (byId('customDetail').value.trim()) {
-        state.detail = '';
-        document.querySelectorAll('[data-group="detail"]').forEach(button => button.setAttribute('aria-pressed', 'false'));
-      }
-      update();
-    });
+    byId('customDetail').addEventListener('input', update);
+    byId('customTone').addEventListener('input', update);
     byId('customTopicInput').addEventListener('input', () => {
       state.customTopic = byId('customTopicInput').value.trim();
-      renderDetails();
       update();
     });
     document.querySelectorAll('.safetyCheck').forEach(box => box.addEventListener('change', update));
